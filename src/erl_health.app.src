@@ -17,7 +17,7 @@
     {env, []},
     {modules, []},
     {maintainers, [
-        "Petr Kozorezov <petr.kozorezov@gmail.com>"
+        "Petr Kozorezov <petr.kozorezov@rbkmoney.com>"
     ]},
     {licenses, []},
     {links, ["https://github.com/rbkmoney/erlang-health-check-handle-server"]}
