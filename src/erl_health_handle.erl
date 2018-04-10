@@ -15,7 +15,7 @@
 -spec get_route(checkers()) ->
     {iodata(), module(), checkers()}.
 get_route(Checkers) ->
-    {["health"], ?MODULE, Checkers}.
+    {"/health", ?MODULE, Checkers}.
 
 %%
 %% cowboy_http_handler callbacks

@@ -9,3 +9,5 @@ erl_crash.dump
 .DS_Store
 /.idea/
 *.beam
+.rebar3/
+ebin/

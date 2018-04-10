@@ -29,7 +29,7 @@
 -type message() :: iolist().
 
 -type result() :: {ok, map()} | {error, code(), message()}.
--type checker() :: fun(() -> result()).
+-type checker() :: {module(), atom(), list()} | fun(() -> result()).
 
 -spec check([checker()]) ->
     result().
@@ -40,13 +40,20 @@ check(Checkers) ->
     result().
 check([], Resp) ->
     {ok, Resp};
-check([Check|OtherChecks], Resp) ->
-    case Check() of
+check([Checker|OtherChecks], Resp) ->
+    case call_checker(Checker) of
         {ok, AdditionalResp} ->
             check(OtherChecks, maps:merge(Resp, AdditionalResp));
         Error = {error, _, _} ->
             Error
     end.
+
+-spec call_checker(checker()) ->
+    result().
+call_checker({M, F, A}) ->
+    erlang:apply(M, F, A);
+call_checker(Checker) ->
+    Checker().
 
 %%
 
@@ -71,14 +78,14 @@ load(Limit) ->
 memory(Limit) ->
     MemStat = maps:from_list(memsup:get_system_memory_data()),
     Total = maps:get(total_memory, MemStat),
-    limit(memory, (Total - maps:get(free_memory, MemStat)) / Total * 100, Limit).
+    limit(memory, (Total - maps:get(free_memory, MemStat)) * 100 div Total, Limit).
 
 %% cgroups memory limit
 %% /sys/fs/cgroups memory.usage_in_bytes / memory.limit_in_bytes
 -spec cg_memory(number()) ->
     result().
 cg_memory(Limit) ->
-    limit(cg_memory, cg_mem_sup:usage() / cg_mem_sup:limit() * 100, Limit).
+    limit(cg_memory, cg_mem_sup:usage() * 100 div cg_mem_sup:limit(), Limit).
 
 %% disk limit
 %% 3-th element from disksup:get_disk_data()
