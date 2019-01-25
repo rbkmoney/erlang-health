@@ -24,11 +24,6 @@ get_route(Checkers) ->
 -spec init(cowboy_req:req(), checkers()) ->
     {ok, cowboy_req:req(), checkers()}.
 init(Req, Checkers) ->
-    handle(Req, Checkers).
-
--spec handle(cowboy_req:req(), checkers()) ->
-    {ok, cowboy_req:req(), checkers()}.
-handle(Req, Checkers) ->
     {Code, Headers, RespBody} =
         case erl_health:check(Checkers) of
             {ok, RespJSON} ->
