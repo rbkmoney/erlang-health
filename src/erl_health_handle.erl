@@ -23,7 +23,7 @@ get_route(Checkers) ->
 %%
 -spec init(cowboy_req:req(), checkers()) ->
     {ok, cowboy_req:req(), checkers()}.
-init(Req, Checkers) ->
+init(Req0, Checkers) ->
     {Code, Headers, RespBody} =
         case erl_health:check(Checkers) of
             {ok, RespJSON} ->
@@ -32,7 +32,7 @@ init(Req, Checkers) ->
             {error, Code_, Msg}->
                 {Code_, #{<<"Content-Type">> => <<"text/plain">>}, Msg}
         end,
-    Req = cowboy_req:reply(Code, Headers, RespBody, Req),
+    Req = cowboy_req:reply(Code, Headers, RespBody, Req0),
     {ok, Req, Checkers}.
 
 -spec terminate(_Reason, cowboy_req:req(), checkers()) ->
