@@ -102,7 +102,7 @@ call_checker(Checker) ->
     Checker().
 
 -spec emit_event(event(), checker()) ->
-    _.
+    _ | no_handler.
 emit_event(Event, #{event_handler := {Module, Opts}}) ->
     Module:handle_event(Event, Opts);
 emit_event(_Event, _Checker) ->
@@ -129,11 +129,18 @@ load(Limit) ->
 -spec memory(number()) ->
     result().
 memory(Limit) ->
-    MemStat = maps:from_list(memsup:get_system_memory_data()),
-    Free = maps:get(free_memory, MemStat),
-    Total = maps:get(total_memory, MemStat),
-    Details = #{free => Free, total => Total},
-    limit((Total - Free) * 100 div Total, Limit, Details).
+    % > http://erlang.org/doc/man/memsup.html#get_system_memory_data-0
+    % On linux the memory available to the emulator is `cached_memory` and `buffered_memory`
+    % in addition to free_memory.
+    #{
+        free_memory     := Free,
+        cached_memory   := Cached,
+        buffered_memory := Buffered,
+        total_memory    := Total
+    } = maps:from_list(memsup:get_system_memory_data()),
+    TotalFree = Free + Cached + Buffered,
+    Details = #{free => TotalFree, total => Total},
+    limit((Total - TotalFree) * 100 div Total, Limit, Details).
 
 %% cgroups memory limit
 %% /sys/fs/cgroups memory.stat->rss / memory.limit_in_bytes
