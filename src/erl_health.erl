@@ -87,7 +87,12 @@ worst_status(Status   , Status ) -> Status;
 worst_status(warning  , passing) -> warning;
 worst_status(critical , passing) -> critical;
 worst_status(critical , warning) -> critical;
-worst_status(S1       , S2     ) -> worst_status(S2, S1).
+worst_status(S1, S2 ) when
+    S1 == passing;
+    S1 == warning;
+    S1 == critical
+->
+    worst_status(S2, S1).
 
 -spec call_checker(check_runner()) ->
     result().
