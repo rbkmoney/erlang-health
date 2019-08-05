@@ -9,7 +9,7 @@ build:
         code: rebar3 xref
       - script:
         name: run dialyzer
-        code: rebar3 dialyzer
+        code: env REBAR_CACHE_DIR="${WERCKER_CACHE_DIR}" rebar3 dialyzer
       - script:
         name: run test suite
         code: rebar3 eunit
